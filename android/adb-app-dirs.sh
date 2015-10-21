@@ -43,10 +43,10 @@ fi
 # Variables and defaults
 appPackage=${PACKAGE}
 device=${DEVICE:=`adb devices | tail -2 | head -1 | cut -f 1 | sed 's/ *$//g'`}
-extractToDir=${DIRECTORY:="./"}
+extractToDir=${DIRECTORY:="/tmp"}
 
 ####
-echo "Extracting '${appPackage}' directories from device: '${device}'"
+echo "Extracting '${appPackage}' directories from device (${device}) to '${extractToDir}'"
 
 # Ensure that a package name has been provided
 if [ -z $appPackage ]
@@ -56,9 +56,9 @@ if [ -z $appPackage ]
 fi
 
 # Ensure that abe.jar tool exists
-if [ ! -f abe.jar ]
+if [ ! -f ./support/abe.jar ]
 	then
-	echo "Unable to locate 'abe.jar' tool in the current directory. Download it from http://sourceforge.net/projects/adbextractor/files/abe.jar/download"
+	echo "Unable to locate 'abe.jar' tool in the 'support' directory. Download it from http://sourceforge.net/projects/adbextractor/files/abe.jar/download"
 	exit 1
 fi
 
@@ -66,7 +66,7 @@ fi
 adb -s $device backup -f $appPackage.ab $appPackage
 
 # Convert the `ab` file to `tar` format
-java -jar ./abe.jar unpack $appPackage.ab $appPackage.tar
+java -jar ./support/abe.jar unpack $appPackage.ab $appPackage.tar
 
 # Extract the `tar` archive
 tar -xf $appPackage.tar -C $extractToDir
@@ -74,4 +74,4 @@ tar -xf $appPackage.tar -C $extractToDir
 # Clean up
 rm $appPackage.tar $appPackage.ab
 
-echo "Done! Your application files were extracted under the 'apps' directory."
+echo "Done! Your application files were extracted under the '${extractToDir}/apps' directory."
